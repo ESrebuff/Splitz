@@ -131,3 +131,14 @@ public class EventService {
     }
 
 }
+
+// TODO : modifier un événement en tant qu'organisateur
+// TODO : modifier le rôle d'un utilisateur dans un événement en tant
+// qu'organisateur
+// TODO : récupérer les événements d'un utilisateur
+// TODO : récupérer les utilisateurs d'un événement
+// TODO : récupérer tous les événements
+// TODO : récupérer tous les pot d'un evenement
+// TODO : quitter un événement
+
+// TODO : à revoir pour ajouter un service

@@ -21,3 +21,15 @@ public class PotService {
     }
 
 }
+
+// TODO : Ajouter un user à un pot en tant qu'organisateur
+// TODO : modifier un pot en tant qu'organisateur
+// TODO : rejoindre un pot
+// TODO : partir d'un pot
+// TODO : connaitre combien un utilisateur a payé dans un pot
+// TODO : connaitre combien un utilisateur doit payer dans un pot
+// TODO : connaitre combien d'argent il reste dans un pot
+// TODO : connaitre combien d'argent il y a dans un pot
+// TODO : récupérer tous les pots d'un utilisateur
+
+// TODO : à revoir pour ajouter un service
