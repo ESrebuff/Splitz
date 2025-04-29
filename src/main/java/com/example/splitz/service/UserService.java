@@ -1,11 +1,14 @@
 package com.example.splitz.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.splitz.dto.UpdatePasswordDTO;
+import com.example.splitz.dto.UpdateUserInfoDTO;
 import com.example.splitz.dto.UserCreateDTO;
 import com.example.splitz.model.User;
 import com.example.splitz.repository.UserRepository;
@@ -33,21 +36,64 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
+    public Optional<User> authenticate(String username, String rawPassword) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (passwordEncoder.matches(rawPassword, user.getPassword())) {
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public void markAccountForDeletion(String username) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            user.setDataDeletedAt(LocalDateTime.now().plusDays(30));
+            userRepository.save(user);
+        });
+    }
+
+    public void updateUserInfo(String username, UpdateUserInfoDTO dto) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            if (dto.getFirstName() != null)
+                user.setFirstName(dto.getFirstName());
+            if (dto.getLastName() != null)
+                user.setLastName(dto.getLastName());
+            if (dto.getPhoneNumber() != null)
+                user.setPhoneNumber(dto.getPhoneNumber());
+
+            if (dto.getConsentGiven() != null) {
+                if (!user.isConsentGiven() && dto.getConsentGiven()) {
+                    user.setConsentGivenAt(LocalDateTime.now());
+                }
+                user.setConsentGiven(dto.getConsentGiven());
+            }
+
+            userRepository.save(user);
+        });
+    }
+
+    public boolean updatePassword(String username, UpdatePasswordDTO dto) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+                user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+                userRepository.save(user);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
-// TODO : pouvoir se connecter
 // TODO : pouvoir se connecter avec google
 // TODO : pouvoir se connecter avec facebook
 // TODO : pouvoir se connecter avec apple
 // TODO : pouvoir se connecter avec linkedin
-// TODO : pouvoir se déconnecter
-// TODO : pouvoir demander à supprimer son compte
-// TODO : pouvoir changer son mot de passe
-// TODO : pouvoir changer son numéro de téléphone
-// TODO : pouvoir changer son nom
-// TODO : pouvoir changer son prénom
-// TODO : pouvoir accepter les CGU et la politique de confidentialité
-// TODO : pouvoir refuser les CGU et la politique de confidentialité
+// TODO : demander un lien de modification de mot de passe
 
 // TODO : à revoir pour ajouter un service
 

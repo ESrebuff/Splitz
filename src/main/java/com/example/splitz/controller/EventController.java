@@ -7,6 +7,8 @@ import com.example.splitz.service.EventService;
 
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,33 @@ public class EventController {
         return ResponseEntity.ok(eventGetDTO);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<EventGetDTO>> getMyEvents() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<EventGetDTO> events = eventService.getUserEvents(username);
+        return ResponseEntity.ok(events);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EventGetDTO>> getAllEvents() {
+        List<EventGetDTO> events = eventService.getAllEvents();
+        return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<String>> getUsersByEvent(@RequestParam Integer eventId) {
+        List<String> usernames = eventService.getUsersByEventId(eventId);
+        return ResponseEntity.ok(usernames);
+    }
+
+    @PutMapping
+    public ResponseEntity<Event> updateEvent(@RequestParam Integer eventId,
+            @RequestBody @Valid EventCreateDTO updatedEventDTO) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Event updatedEvent = eventService.updateEvent(eventId, updatedEventDTO, username);
+        return ResponseEntity.ok(updatedEvent);
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> deleteEvent(@RequestParam Integer eventId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -46,6 +75,13 @@ public class EventController {
             @RequestParam String usernameToRemove) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         eventService.removeUserFromEvent(eventId, usernameToRemove, username);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/leave")
+    public ResponseEntity<Void> leaveEvent(@RequestParam Integer eventId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        eventService.leaveEvent(eventId, username);
         return ResponseEntity.noContent().build();
     }
 }
