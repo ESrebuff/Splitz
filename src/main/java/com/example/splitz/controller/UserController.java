@@ -3,8 +3,8 @@ package com.example.splitz.controller;
 import jakarta.validation.Valid;
 
 import com.example.splitz.dto.LoginRequestDTO;
-import com.example.splitz.dto.UpdatePasswordDTO;
-import com.example.splitz.dto.UpdateUserInfoDTO;
+import com.example.splitz.dto.UserUpdatePasswordDTO;
+import com.example.splitz.dto.UserUpdateInfoDTO;
 import com.example.splitz.dto.UserCreateDTO;
 import com.example.splitz.model.User;
 import com.example.splitz.security.JwtUtil;
@@ -48,14 +48,14 @@ public class UserController {
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<?> updateUserInfo(@RequestBody UpdateUserInfoDTO dto) {
+    public ResponseEntity<?> updateUserInfo(@RequestBody UserUpdateInfoDTO dto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         userService.updateUserInfo(username, dto);
         return ResponseEntity.ok("User info updated");
     }
 
     @PatchMapping("/me/password")
-    public ResponseEntity<?> updatePassword(@RequestBody @Valid UpdatePasswordDTO dto) {
+    public ResponseEntity<?> updatePassword(@RequestBody @Valid UserUpdatePasswordDTO dto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean updated = userService.updatePassword(username, dto);
         if (!updated) {

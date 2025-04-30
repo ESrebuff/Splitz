@@ -48,5 +48,5 @@ public class Expense {
     }
 }
 
-// Expense liste les dépenses d'un événement et qui précise si la'gent d'un pot
-// été utilisé pour cette dépense.
+// Expense liste les dépenses d'un événement et qui précise si l'argent d'un pot
+// à été utilisé pour cette dépense.

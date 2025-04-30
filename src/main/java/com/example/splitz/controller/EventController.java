@@ -3,7 +3,8 @@ package com.example.splitz.controller;
 import com.example.splitz.dto.EventCreateDTO;
 import com.example.splitz.dto.EventGetDTO;
 import com.example.splitz.model.Event;
-import com.example.splitz.service.EventService;
+import com.example.splitz.service.EventManagementService;
+import com.example.splitz.service.EventParticipationService;
 
 import jakarta.validation.Valid;
 
@@ -20,68 +21,75 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
 
     @Autowired
-    private EventService eventService;
+    private EventManagementService eventManagementService;
+
+    @Autowired
+    private EventParticipationService eventParticipationService;
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody @Valid EventCreateDTO eventCreateDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Event createdEvent = eventService.createEvent(eventCreateDTO, username);
-        return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
+    public ResponseEntity<Event> createEvent(@RequestBody @Valid EventCreateDTO dto) {
+        String username = getAuthenticatedUsername();
+        Event event = eventManagementService.createEvent(dto, username);
+        return new ResponseEntity<>(event, HttpStatus.CREATED);
     }
 
-    @PostMapping("/join")
-    public ResponseEntity<EventGetDTO> joinEvent(@RequestParam String inviteCode) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        EventGetDTO eventGetDTO = eventService.joinEventByInviteCode(inviteCode, username);
-        return ResponseEntity.ok(eventGetDTO);
+    @PutMapping("/{eventId}")
+    public ResponseEntity<Event> updateEvent(@PathVariable Integer eventId,
+            @RequestBody @Valid EventCreateDTO dto) {
+        String username = getAuthenticatedUsername();
+        Event updated = eventManagementService.updateEvent(eventId, dto, username);
+        return ResponseEntity.ok(updated);
     }
 
-    @GetMapping("/my")
-    public ResponseEntity<List<EventGetDTO>> getMyEvents() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<EventGetDTO> events = eventService.getUserEvents(username);
-        return ResponseEntity.ok(events);
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<Void> deleteEvent(@PathVariable Integer eventId) {
+        String username = getAuthenticatedUsername();
+        eventManagementService.deleteEvent(eventId, username);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     public ResponseEntity<List<EventGetDTO>> getAllEvents() {
-        List<EventGetDTO> events = eventService.getAllEvents();
+        List<EventGetDTO> events = eventManagementService.getAllEvents();
         return ResponseEntity.ok(events);
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<String>> getUsersByEvent(@RequestParam Integer eventId) {
-        List<String> usernames = eventService.getUsersByEventId(eventId);
+    @PostMapping("/join")
+    public ResponseEntity<EventGetDTO> joinEvent(@RequestParam String inviteCode) {
+        String username = getAuthenticatedUsername();
+        EventGetDTO dto = eventParticipationService.joinEventByInviteCode(inviteCode, username);
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/leave/{eventId}")
+    public ResponseEntity<Void> leaveEvent(@PathVariable Integer eventId) {
+        String username = getAuthenticatedUsername();
+        eventParticipationService.leaveEvent(eventId, username);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<EventGetDTO>> getMyEvents() {
+        String username = getAuthenticatedUsername();
+        List<EventGetDTO> events = eventParticipationService.getUserEvents(username);
+        return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/{eventId}/users")
+    public ResponseEntity<List<String>> getUsersByEvent(@PathVariable Integer eventId) {
+        List<String> usernames = eventParticipationService.getUsersByEventId(eventId);
         return ResponseEntity.ok(usernames);
     }
 
-    @PutMapping
-    public ResponseEntity<Event> updateEvent(@RequestParam Integer eventId,
-            @RequestBody @Valid EventCreateDTO updatedEventDTO) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Event updatedEvent = eventService.updateEvent(eventId, updatedEventDTO, username);
-        return ResponseEntity.ok(updatedEvent);
-    }
-
-    @DeleteMapping
-    public ResponseEntity<Void> deleteEvent(@RequestParam Integer eventId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        eventService.deleteEvent(eventId, username);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/user")
-    public ResponseEntity<Void> removeUserFromEvent(@RequestParam Integer eventId,
+    @DeleteMapping("/{eventId}/user")
+    public ResponseEntity<Void> removeUserFromEvent(@PathVariable Integer eventId,
             @RequestParam String usernameToRemove) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        eventService.removeUserFromEvent(eventId, usernameToRemove, username);
+        String username = getAuthenticatedUsername();
+        eventParticipationService.removeUserFromEvent(eventId, usernameToRemove, username);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/leave")
-    public ResponseEntity<Void> leaveEvent(@RequestParam Integer eventId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        eventService.leaveEvent(eventId, username);
-        return ResponseEntity.noContent().build();
+    private String getAuthenticatedUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }

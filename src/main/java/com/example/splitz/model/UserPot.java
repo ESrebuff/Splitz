@@ -28,9 +28,6 @@ public class UserPot {
     @JoinColumn(name = "amount_paid")
     private Integer amountPaid;
 
-    @JoinColumn(name = "amount_to_pay")
-    private Integer amountToPay;
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

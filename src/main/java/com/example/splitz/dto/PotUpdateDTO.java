@@ -1,6 +1,5 @@
 package com.example.splitz.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdatePasswordDTO {
-    @NotBlank
-    private String currentPassword;
+public class PotUpdateDTO {
 
-    @NotBlank
-    private String newPassword;
+    private String name;
+    private Integer budget;
 
 }

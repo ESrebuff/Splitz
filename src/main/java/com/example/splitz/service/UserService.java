@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.splitz.dto.UpdatePasswordDTO;
-import com.example.splitz.dto.UpdateUserInfoDTO;
+import com.example.splitz.dto.UserUpdatePasswordDTO;
+import com.example.splitz.dto.UserUpdateInfoDTO;
 import com.example.splitz.dto.UserCreateDTO;
 import com.example.splitz.model.User;
 import com.example.splitz.repository.UserRepository;
@@ -54,7 +54,7 @@ public class UserService {
         });
     }
 
-    public void updateUserInfo(String username, UpdateUserInfoDTO dto) {
+    public void updateUserInfo(String username, UserUpdateInfoDTO dto) {
         userRepository.findByUsername(username).ifPresent(user -> {
             if (dto.getFirstName() != null)
                 user.setFirstName(dto.getFirstName());
@@ -74,7 +74,7 @@ public class UserService {
         });
     }
 
-    public boolean updatePassword(String username, UpdatePasswordDTO dto) {
+    public boolean updatePassword(String username, UserUpdatePasswordDTO dto) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
