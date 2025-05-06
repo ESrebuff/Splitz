@@ -1,5 +1,6 @@
 package com.example.splitz.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,7 @@ public interface UserPotRepository extends JpaRepository<UserPot, Integer> {
 
     Optional<UserPot> findByUserAndPot(User user, Pot pot);
 
+    List<UserPot> findByUser_Id(Integer userId);
+
+    boolean existsByPotAndUser_Id(Pot pot, Integer userId);
 }

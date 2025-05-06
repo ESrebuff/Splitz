@@ -42,26 +42,30 @@ public class UserController {
 
     @DeleteMapping("/me")
     public ResponseEntity<Void> requestAccountDeletion() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = getAuthenticatedUsername();
         userService.markAccountForDeletion(username);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/me")
     public ResponseEntity<?> updateUserInfo(@RequestBody UserUpdateInfoDTO dto) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = getAuthenticatedUsername();
         userService.updateUserInfo(username, dto);
         return ResponseEntity.ok("User info updated");
     }
 
     @PatchMapping("/me/password")
     public ResponseEntity<?> updatePassword(@RequestBody @Valid UserUpdatePasswordDTO dto) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = getAuthenticatedUsername();
         boolean updated = userService.updatePassword(username, dto);
         if (!updated) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect current password");
         }
         return ResponseEntity.ok("Password updated");
+    }
+
+    private String getAuthenticatedUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
 }

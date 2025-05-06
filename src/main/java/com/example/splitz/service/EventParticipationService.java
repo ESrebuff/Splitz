@@ -1,6 +1,7 @@
 package com.example.splitz.service;
 
 import com.example.splitz.dto.EventGetDTO;
+import com.example.splitz.dto.UserEventDTO;
 import com.example.splitz.helper.EventAssociationHelper;
 import com.example.splitz.mapper.EventMapper;
 import com.example.splitz.model.Event;
@@ -22,84 +23,85 @@ import org.springframework.stereotype.Service;
 @Service
 public class EventParticipationService {
 
-    @Autowired
-    private EventRepository eventRepository;
+        @Autowired
+        private EventRepository eventRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    private UserEventRepository userEventRepository;
+        @Autowired
+        private UserEventRepository userEventRepository;
 
-    @Autowired
-    private EventAssociationHelper eventAssociationHelper;
+        @Autowired
+        private EventAssociationHelper eventAssociationHelper;
 
-    public EventGetDTO joinEventByInviteCode(String inviteCode, String username) {
-        Event event = eventRepository.findByInviteCode(inviteCode)
-                .orElseThrow(() -> new EntityNotFoundException("Code invalide"));
+        public EventGetDTO joinEventByInviteCode(String inviteCode, String username) {
+                Event event = eventRepository.findByInviteCode(inviteCode)
+                                .orElseThrow(() -> new EntityNotFoundException("Code invalide"));
 
-        if (event.getInviteCodeExpiresAt() != null && event.getInviteCodeExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Code expiré");
+                if (event.getInviteCodeExpiresAt() != null
+                                && event.getInviteCodeExpiresAt().isBefore(LocalDateTime.now())) {
+                        throw new IllegalStateException("Code expiré");
+                }
+
+                User user = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+
+                eventAssociationHelper.associateUserToEvent(user, event, RoleEvent.PARTICIPANT);
+                return EventMapper.toDTO(event);
         }
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+        public void leaveEvent(Integer eventId, String username) {
+                Event event = eventRepository.findById(eventId)
+                                .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé"));
 
-        eventAssociationHelper.associateUserToEvent(user, event, RoleEvent.PARTICIPANT);
-        return EventMapper.toDTO(event);
-    }
+                if (event.getUser().getUsername().equals(username)) {
+                        throw new IllegalStateException("L'organisateur ne peut pas quitter son événement");
+                }
 
-    public void leaveEvent(Integer eventId, String username) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé"));
+                User user = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
 
-        if (event.getUser().getUsername().equals(username)) {
-            throw new IllegalStateException("L'organisateur ne peut pas quitter son événement");
+                UserEvent ue = userEventRepository.findByUserAndEvent(user, event)
+                                .orElseThrow(() -> new EntityNotFoundException(
+                                                "Utilisateur non associé à l'événement"));
+
+                userEventRepository.delete(ue);
         }
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+        public void removeUserFromEvent(Integer eventId, String targetUsername, String requesterUsername) {
+                Event event = eventRepository.findById(eventId)
+                                .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé"));
 
-        UserEvent ue = userEventRepository.findByUserAndEvent(user, event)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non associé à l'événement"));
+                if (!event.getUser().getUsername().equals(requesterUsername)) {
+                        throw new IllegalStateException("Non autorisé");
+                }
 
-        userEventRepository.delete(ue);
-    }
+                User user = userRepository.findByUsername(targetUsername)
+                                .orElseThrow(() -> new EntityNotFoundException("Utilisateur à supprimer introuvable"));
 
-    public void removeUserFromEvent(Integer eventId, String targetUsername, String requesterUsername) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé"));
+                UserEvent ue = userEventRepository.findByUserAndEvent(user, event)
+                                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non dans l'événement"));
 
-        if (!event.getUser().getUsername().equals(requesterUsername)) {
-            throw new IllegalStateException("Non autorisé");
+                userEventRepository.delete(ue);
         }
 
-        User user = userRepository.findByUsername(targetUsername)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur à supprimer introuvable"));
+        public List<EventGetDTO> getUserEvents(String username) {
+                User user = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
 
-        UserEvent ue = userEventRepository.findByUserAndEvent(user, event)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non dans l'événement"));
+                return userEventRepository.findAll().stream()
+                                .filter(ue -> ue.getUser().getId().equals(user.getId()))
+                                .map(ue -> EventMapper.toDTO(ue.getEvent()))
+                                .toList();
+        }
 
-        userEventRepository.delete(ue);
-    }
+        public List<UserEventDTO> getUsersByEventId(Integer eventId) {
+                eventRepository.findById(eventId)
+                                .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé"));
 
-    public List<EventGetDTO> getUserEvents(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
-
-        return userEventRepository.findAll().stream()
-                .filter(ue -> ue.getUser().getId().equals(user.getId()))
-                .map(ue -> EventMapper.toDTO(ue.getEvent()))
-                .toList();
-    }
-
-    public List<String> getUsersByEventId(Integer eventId) {
-        eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé"));
-
-        return userEventRepository.findAll().stream()
-                .filter(ue -> ue.getEvent().getId().equals(eventId))
-                .map(ue -> ue.getUser().getUsername())
-                .toList();
-    }
+                return userEventRepository.findByEvent_Id(eventId).stream()
+                                .map(ue -> new UserEventDTO(ue.getUser().getId(), ue.getUser().getUsername()))
+                                .toList();
+        }
 }

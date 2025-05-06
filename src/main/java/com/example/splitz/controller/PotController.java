@@ -37,14 +37,14 @@ public class PotController {
             @PathVariable Integer potId,
             @RequestParam String usernameToAdd) {
 
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = getAuthenticatedUsername();
         potParticipationService.addUserToPotAsOrganizer(potId, usernameToAdd, currentUsername);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{potId}/join")
     public ResponseEntity<Void> joinPot(@PathVariable Integer potId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = getAuthenticatedUsername();
         potParticipationService.joinPot(potId, username);
         return ResponseEntity.ok().build();
     }
@@ -58,22 +58,26 @@ public class PotController {
     @PutMapping("/{potId}")
     public ResponseEntity<Pot> updatePot(@PathVariable Integer potId,
             @RequestBody PotUpdateDTO potUpdateDTO) {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = getAuthenticatedUsername();
         Pot updatedPot = potService.updatePot(potId, potUpdateDTO, currentUsername);
         return new ResponseEntity<>(updatedPot, HttpStatus.OK);
     }
 
     @DeleteMapping("/{potId}/leave")
     public ResponseEntity<Void> leavePot(@PathVariable Integer potId) {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = getAuthenticatedUsername();
         potParticipationService.leavePot(potId, currentUsername);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{potId}")
     public ResponseEntity<Void> deletePot(@PathVariable Integer potId) {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = getAuthenticatedUsername();
         potService.deletePot(potId, currentUsername);
         return ResponseEntity.noContent().build();
+    }
+
+    private String getAuthenticatedUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }

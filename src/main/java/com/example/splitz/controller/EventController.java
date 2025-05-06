@@ -2,6 +2,7 @@ package com.example.splitz.controller;
 
 import com.example.splitz.dto.EventCreateDTO;
 import com.example.splitz.dto.EventGetDTO;
+import com.example.splitz.dto.UserEventDTO;
 import com.example.splitz.model.Event;
 import com.example.splitz.service.EventManagementService;
 import com.example.splitz.service.EventParticipationService;
@@ -76,9 +77,9 @@ public class EventController {
     }
 
     @GetMapping("/{eventId}/users")
-    public ResponseEntity<List<String>> getUsersByEvent(@PathVariable Integer eventId) {
-        List<String> usernames = eventParticipationService.getUsersByEventId(eventId);
-        return ResponseEntity.ok(usernames);
+    public ResponseEntity<List<UserEventDTO>> getUsersByEvent(@PathVariable Integer eventId) {
+        List<UserEventDTO> userEventDTOs = eventParticipationService.getUsersByEventId(eventId);
+        return ResponseEntity.ok(userEventDTOs);
     }
 
     @DeleteMapping("/{eventId}/user")
