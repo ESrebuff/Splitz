@@ -97,5 +97,4 @@ public class UserService {
 
 // TODO : à revoir pour ajouter un service
 
-// TODO : ajouter les moyens de paiement
 // TODO : ajouter les dépenses
