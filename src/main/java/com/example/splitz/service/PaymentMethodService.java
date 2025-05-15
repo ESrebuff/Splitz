@@ -1,6 +1,6 @@
 package com.example.splitz.service;
 
-import com.example.splitz.dto.PaymentMethodCreateDTO;
+import com.example.splitz.dto.payment.PaymentMethodCreateDTO;
 import com.example.splitz.model.PayementMethod;
 import com.example.splitz.model.User;
 import com.example.splitz.repository.PayementMethodRepository;

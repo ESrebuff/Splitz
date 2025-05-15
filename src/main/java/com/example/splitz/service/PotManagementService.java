@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.splitz.dto.PotCreateDTO;
-import com.example.splitz.dto.PotUpdateDTO;
+import com.example.splitz.dto.pot.PotCreateDTO;
+import com.example.splitz.dto.pot.PotUpdateDTO;
 import com.example.splitz.model.Pot;
 import com.example.splitz.repository.PotRepository;
 

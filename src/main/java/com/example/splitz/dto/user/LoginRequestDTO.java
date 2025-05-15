@@ -1,4 +1,4 @@
-package com.example.splitz.dto;
+package com.example.splitz.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserExpenseDTO {
-    private Integer userId;
-    private Integer amountOwed;
+public class LoginRequestDTO {
+    private String username;
+    private String password;
 }

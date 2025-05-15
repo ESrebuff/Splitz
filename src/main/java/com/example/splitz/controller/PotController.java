@@ -1,7 +1,7 @@
 package com.example.splitz.controller;
 
-import com.example.splitz.dto.PotCreateDTO;
-import com.example.splitz.dto.PotUpdateDTO;
+import com.example.splitz.dto.pot.PotCreateDTO;
+import com.example.splitz.dto.pot.PotUpdateDTO;
 import com.example.splitz.model.Pot;
 import com.example.splitz.service.PotParticipationService;
 import com.example.splitz.service.PotManagementService;

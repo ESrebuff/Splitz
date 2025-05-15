@@ -1,29 +1,32 @@
 package com.example.splitz.mapper;
 
-import com.example.splitz.dto.ExpenseResponseDTO;
 import com.example.splitz.model.Expense;
-import com.example.splitz.model.Event;
 import com.example.splitz.model.User;
+import com.example.splitz.dto.expense.ExpenseCreateDTO;
+import com.example.splitz.dto.expense.ExpenseResponseDTO;
+import com.example.splitz.model.Event;
 
 public class ExpenseMapper {
-    public static Expense toEntity(Event event, User payer, int amount, String description, Integer potId) {
-        return Expense.builder()
-                .event(event)
-                .paidByUserid(payer.getId())
-                .amount(amount)
-                .description(description)
-                .potId(potId)
-                .build();
-    }
 
     public static ExpenseResponseDTO toDto(Expense expense) {
-        ExpenseResponseDTO dto = new ExpenseResponseDTO();
-        dto.setId(expense.getId());
-        dto.setAmount(expense.getAmount());
-        dto.setDescription(expense.getDescription());
-        dto.setPaidByUserid(expense.getPaidByUserid());
-        dto.setEventId(expense.getEvent().getId());
-        dto.setPotId(expense.getPotId());
-        return dto;
+        return ExpenseResponseDTO.builder()
+                .id(expense.getId())
+                .amount(expense.getAmount())
+                .description(expense.getDescription())
+                .paidByUserid(expense.getPaidByUserid())
+                .eventId(expense.getEvent().getId())
+                .potId(expense.getPotId())
+                .build();
+
+    }
+
+    public static Expense toEntity(Event event, User payer, ExpenseCreateDTO dto) {
+        Expense expense = new Expense();
+        expense.setEvent(event);
+        expense.setPaidByUserid(payer.getId());
+        expense.setAmount(dto.getAmount());
+        expense.setDescription(dto.getDescription());
+        expense.setPotId(dto.getPotId());
+        return expense;
     }
 }

@@ -1,8 +1,7 @@
 package com.example.splitz.controller;
 
-import com.example.splitz.dto.ExpenseManualDTO;
-import com.example.splitz.dto.ExpenseResponseDTO;
-import com.example.splitz.dto.ExpenseWithPotDTO;
+import com.example.splitz.dto.expense.ExpenseResponseDTO;
+import com.example.splitz.dto.expense.ExpenseCreateDTO;
 import com.example.splitz.mapper.ExpenseMapper;
 import com.example.splitz.model.Expense;
 import com.example.splitz.service.ExpenseService;
@@ -25,30 +24,18 @@ public class ExpenseController {
     private ExpenseService expenseService;
 
     @PostMapping("/manual")
-    public ResponseEntity<ExpenseResponseDTO> addCustomSplitExpense(@RequestBody @Valid ExpenseManualDTO dto) {
+    public ResponseEntity<ExpenseResponseDTO> addCustomSplitExpense(@RequestBody @Valid ExpenseCreateDTO dto) {
         String username = getAuthenticatedUsername();
-        Expense expense = expenseService.addExpenseWith(
-                dto.getEventId(),
-                dto.getAmount(),
-                dto.getDescription(),
-                username,
-                dto.getUserSplits());
-
+        Expense expense = expenseService.addExpense(dto, username);
         ExpenseResponseDTO responseDto = ExpenseMapper.toDto(expense);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     @PostMapping("/with-pot")
-    public ResponseEntity<ExpenseResponseDTO> createExpenseWithPot(@RequestBody @Valid ExpenseWithPotDTO dto) {
+    public ResponseEntity<ExpenseResponseDTO> createExpenseWithPot(@RequestBody @Valid ExpenseCreateDTO dto) {
         String username = getAuthenticatedUsername();
-        Expense created = expenseService.usePotForExpense(
-                dto.getEventId(),
-                dto.getAmount(),
-                dto.getDescription(),
-                dto.getPotId(),
-                username);
-
-        ExpenseResponseDTO responseDto = ExpenseMapper.toDto(created);
+        Expense expense = expenseService.usePotForExpense(dto, username);
+        ExpenseResponseDTO responseDto = ExpenseMapper.toDto(expense);
         return ResponseEntity.ok(responseDto);
     }
 

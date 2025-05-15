@@ -1,4 +1,4 @@
-package com.example.splitz.dto;
+package com.example.splitz.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,5 +14,4 @@ public class UserUpdateInfoDTO {
     private String lastName;
     private String phoneNumber;
     private Boolean consentGiven;
-
 }

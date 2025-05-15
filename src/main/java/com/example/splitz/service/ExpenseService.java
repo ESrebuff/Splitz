@@ -3,6 +3,7 @@ package com.example.splitz.service;
 import com.example.splitz.model.Expense;
 import com.example.splitz.model.Pot;
 import com.example.splitz.dto.UserExpenseDTO;
+import com.example.splitz.dto.expense.ExpenseCreateDTO;
 import com.example.splitz.mapper.ExpenseMapper;
 import com.example.splitz.mapper.UserExpenseMapper;
 import com.example.splitz.model.Event;
@@ -37,64 +38,57 @@ public class ExpenseService {
         @Autowired
         private UserExpenseRepository userExpenseRepository;
 
-        public Expense addExpenseWith(Integer eventId, Integer amount, String description,
-                        String username, List<UserExpenseDTO> splits) {
-
-                if (splits.isEmpty()) {
+        public Expense addExpense(ExpenseCreateDTO dto, String username) {
+                if (dto.getUserSplits().isEmpty()) {
                         throw new IllegalArgumentException(
                                         "La liste des utilisateurs concernés ne peut pas être vide.");
                 }
 
-                Event event = getEventById(eventId);
+                Event event = getEventById(dto.getEventId());
                 User payer = getUserByUsername(username);
 
-                int totalSplitAmount = splits.stream()
+                int totalSplitAmount = dto.getUserSplits().stream()
                                 .mapToInt(UserExpenseDTO::getAmountOwed)
                                 .sum();
 
-                if (totalSplitAmount != amount) {
+                if (totalSplitAmount != dto.getAmount()) {
                         throw new IllegalArgumentException(
                                         "La somme des montants dus ne correspond pas au montant total.");
                 }
 
-                Expense expense = ExpenseMapper.toEntity(event, payer, amount, description, null);
-
+                Expense expense = ExpenseMapper.toEntity(event, payer, dto);
                 Expense savedExpense = expenseRepository.save(expense);
 
-                for (UserExpenseDTO dto : splits) {
-                        User user = userRepository.findById(dto.getUserId())
+                for (UserExpenseDTO userSplit : dto.getUserSplits()) {
+                        User user = userRepository.findById(userSplit.getUserId())
                                         .orElseThrow(() -> new RuntimeException(
-                                                        "Utilisateur non trouvé (id: " + dto.getUserId() + ")"));
+                                                        "Utilisateur non trouvé (id: " + userSplit.getUserId() + ")"));
 
-                        UserExpense userExpense = UserExpenseMapper.toEntity(dto, savedExpense, user);
+                        UserExpense userExpense = UserExpenseMapper.toEntity(userSplit, savedExpense, user);
                         userExpenseRepository.save(userExpense);
                 }
 
                 return savedExpense;
         }
 
-        public Expense usePotForExpense(Integer eventId, Integer amount, String description,
-                        Integer potId, String username) {
-
-                Event event = getEventById(eventId);
+        public Expense usePotForExpense(ExpenseCreateDTO dto, String username) {
+                Event event = getEventById(dto.getEventId());
                 User payer = getUserByUsername(username);
 
-                Pot pot = potRepository.findById(potId)
-                                .orElseThrow(() -> new RuntimeException("Cagnotte non trouvé"));
+                Pot pot = potRepository.findById(dto.getPotId())
+                                .orElseThrow(() -> new RuntimeException("Cagnotte non trouvée"));
 
-                if (!pot.getEvent().getId().equals(eventId)) {
+                if (!pot.getEvent().getId().equals(dto.getEventId())) {
                         throw new IllegalArgumentException("La cagnotte ne correspond pas à l'événement spécifié.");
                 }
 
-                Expense expense = ExpenseMapper.toEntity(event, payer, amount, description, potId);
-
+                Expense expense = ExpenseMapper.toEntity(event, payer, dto);
                 return expenseRepository.save(expense);
         }
 
         public List<Expense> getExpensesByEvent(Integer eventId) {
                 Event event = eventRepository.findById(eventId)
                                 .orElseThrow(() -> new RuntimeException("Événement non trouvé"));
-
                 return expenseRepository.findByEvent(event);
         }
 

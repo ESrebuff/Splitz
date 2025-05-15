@@ -1,7 +1,7 @@
 package com.example.splitz.service;
 
-import com.example.splitz.dto.EventGetDTO;
-import com.example.splitz.dto.UserEventDTO;
+import com.example.splitz.dto.event.EventResponseDTO;
+import com.example.splitz.dto.event.UserEventResponseDTO;
 import com.example.splitz.helper.EventAssociationHelper;
 import com.example.splitz.mapper.EventMapper;
 import com.example.splitz.model.Event;
@@ -35,7 +35,7 @@ public class EventParticipationService {
         @Autowired
         private EventAssociationHelper eventAssociationHelper;
 
-        public EventGetDTO joinEventByInviteCode(String inviteCode, String username) {
+        public EventResponseDTO joinEventByInviteCode(String inviteCode, String username) {
                 Event event = eventRepository.findByInviteCode(inviteCode)
                                 .orElseThrow(() -> new EntityNotFoundException("Code invalide"));
 
@@ -86,7 +86,7 @@ public class EventParticipationService {
                 userEventRepository.delete(ue);
         }
 
-        public List<EventGetDTO> getUserEvents(String username) {
+        public List<EventResponseDTO> getUserEvents(String username) {
                 User user = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
 
@@ -96,12 +96,12 @@ public class EventParticipationService {
                                 .toList();
         }
 
-        public List<UserEventDTO> getUsersByEventId(Integer eventId) {
+        public List<UserEventResponseDTO> getUsersByEventId(Integer eventId) {
                 eventRepository.findById(eventId)
                                 .orElseThrow(() -> new EntityNotFoundException("Événement non trouvé"));
 
                 return userEventRepository.findByEvent_Id(eventId).stream()
-                                .map(ue -> new UserEventDTO(ue.getUser().getId(), ue.getUser().getUsername()))
+                                .map(ue -> new UserEventResponseDTO(ue.getUser().getId(), ue.getUser().getUsername()))
                                 .toList();
         }
 }

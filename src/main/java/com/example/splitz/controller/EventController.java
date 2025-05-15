@@ -1,8 +1,9 @@
 package com.example.splitz.controller;
 
-import com.example.splitz.dto.EventCreateDTO;
-import com.example.splitz.dto.EventGetDTO;
-import com.example.splitz.dto.UserEventDTO;
+import com.example.splitz.dto.event.EventCreateDTO;
+import com.example.splitz.dto.event.EventResponseDTO;
+import com.example.splitz.dto.event.UserEventResponseDTO;
+import com.example.splitz.mapper.EventMapper;
 import com.example.splitz.model.Event;
 import com.example.splitz.service.EventManagementService;
 import com.example.splitz.service.EventParticipationService;
@@ -12,7 +13,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -28,18 +28,18 @@ public class EventController {
     private EventParticipationService eventParticipationService;
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody @Valid EventCreateDTO dto) {
+    public ResponseEntity<EventResponseDTO> createEvent(@RequestBody @Valid EventCreateDTO dto) {
         String username = getAuthenticatedUsername();
         Event event = eventManagementService.createEvent(dto, username);
-        return new ResponseEntity<>(event, HttpStatus.CREATED);
+        return ResponseEntity.ok(EventMapper.toDTO(event));
     }
 
     @PutMapping("/{eventId}")
-    public ResponseEntity<Event> updateEvent(@PathVariable Integer eventId,
+    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Integer eventId,
             @RequestBody @Valid EventCreateDTO dto) {
         String username = getAuthenticatedUsername();
         Event updated = eventManagementService.updateEvent(eventId, dto, username);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(EventMapper.toDTO(updated));
     }
 
     @DeleteMapping("/{eventId}")
@@ -50,15 +50,15 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventGetDTO>> getAllEvents() {
-        List<EventGetDTO> events = eventManagementService.getAllEvents();
+    public ResponseEntity<List<EventResponseDTO>> getAllEvents() {
+        List<EventResponseDTO> events = eventManagementService.getAllEvents();
         return ResponseEntity.ok(events);
     }
 
     @PostMapping("/join")
-    public ResponseEntity<EventGetDTO> joinEvent(@RequestParam String inviteCode) {
+    public ResponseEntity<EventResponseDTO> joinEvent(@RequestParam String inviteCode) {
         String username = getAuthenticatedUsername();
-        EventGetDTO dto = eventParticipationService.joinEventByInviteCode(inviteCode, username);
+        EventResponseDTO dto = eventParticipationService.joinEventByInviteCode(inviteCode, username);
         return ResponseEntity.ok(dto);
     }
 
@@ -70,15 +70,15 @@ public class EventController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<EventGetDTO>> getMyEvents() {
+    public ResponseEntity<List<EventResponseDTO>> getMyEvents() {
         String username = getAuthenticatedUsername();
-        List<EventGetDTO> events = eventParticipationService.getUserEvents(username);
+        List<EventResponseDTO> events = eventParticipationService.getUserEvents(username);
         return ResponseEntity.ok(events);
     }
 
     @GetMapping("/{eventId}/users")
-    public ResponseEntity<List<UserEventDTO>> getUsersByEvent(@PathVariable Integer eventId) {
-        List<UserEventDTO> userEventDTOs = eventParticipationService.getUsersByEventId(eventId);
+    public ResponseEntity<List<UserEventResponseDTO>> getUsersByEvent(@PathVariable Integer eventId) {
+        List<UserEventResponseDTO> userEventDTOs = eventParticipationService.getUsersByEventId(eventId);
         return ResponseEntity.ok(userEventDTOs);
     }
 

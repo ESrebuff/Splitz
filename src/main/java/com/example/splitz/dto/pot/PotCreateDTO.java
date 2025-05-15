@@ -1,6 +1,4 @@
-package com.example.splitz.dto;
-
-import java.time.LocalDateTime;
+package com.example.splitz.dto.pot;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventCreateDTO {
-
-    private String eventName;
-    private LocalDateTime eventDate;
-
+public class PotCreateDTO {
+    private String name;
+    private Integer budget;
 }

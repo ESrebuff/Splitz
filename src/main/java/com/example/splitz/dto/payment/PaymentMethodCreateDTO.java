@@ -1,4 +1,4 @@
-package com.example.splitz.dto;
+package com.example.splitz.dto.payment;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PotCreateDTO {
-
-    private String name;
-    private Integer budget;
-
+public class PaymentMethodCreateDTO {
+    private String method;
+    private String accountInfo;
 }

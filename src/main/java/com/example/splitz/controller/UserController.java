@@ -2,10 +2,10 @@ package com.example.splitz.controller;
 
 import jakarta.validation.Valid;
 
-import com.example.splitz.dto.LoginRequestDTO;
-import com.example.splitz.dto.UserUpdatePasswordDTO;
-import com.example.splitz.dto.UserUpdateInfoDTO;
-import com.example.splitz.dto.UserCreateDTO;
+import com.example.splitz.dto.user.LoginRequestDTO;
+import com.example.splitz.dto.user.UserCreateDTO;
+import com.example.splitz.dto.user.UserUpdateInfoDTO;
+import com.example.splitz.dto.user.UserUpdatePasswordDTO;
 import com.example.splitz.model.User;
 import com.example.splitz.security.JwtUtil;
 import com.example.splitz.service.UserService;

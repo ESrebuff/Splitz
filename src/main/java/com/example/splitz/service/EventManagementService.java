@@ -1,7 +1,7 @@
 package com.example.splitz.service;
 
-import com.example.splitz.dto.EventCreateDTO;
-import com.example.splitz.dto.EventGetDTO;
+import com.example.splitz.dto.event.EventCreateDTO;
+import com.example.splitz.dto.event.EventResponseDTO;
 import com.example.splitz.helper.EventAssociationHelper;
 import com.example.splitz.mapper.EventMapper;
 import com.example.splitz.model.Event;
@@ -48,7 +48,7 @@ public class EventManagementService {
         return createdEvent;
     }
 
-    public List<EventGetDTO> getAllEvents() {
+    public List<EventResponseDTO> getAllEvents() {
         return eventRepository.findAll().stream()
                 .map(EventMapper::toDTO)
                 .toList();

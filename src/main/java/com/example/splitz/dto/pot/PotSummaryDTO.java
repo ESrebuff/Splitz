@@ -1,4 +1,4 @@
-package com.example.splitz.dto;
+package com.example.splitz.dto.pot;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class PotUpdateDTO {
-
+@NoArgsConstructor
+public class PotSummaryDTO {
+    private Integer id;
     private String name;
-    private Integer budget;
-
+    private Integer totalAmount;
 }

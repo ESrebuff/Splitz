@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.splitz.dto.UserUpdatePasswordDTO;
-import com.example.splitz.dto.UserUpdateInfoDTO;
-import com.example.splitz.dto.UserCreateDTO;
+import com.example.splitz.dto.user.UserCreateDTO;
+import com.example.splitz.dto.user.UserUpdateInfoDTO;
+import com.example.splitz.dto.user.UserUpdatePasswordDTO;
+import com.example.splitz.mapper.UserMapper;
 import com.example.splitz.model.User;
 import com.example.splitz.repository.UserRepository;
 
@@ -23,12 +24,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public User createUser(UserCreateDTO userCreateDTO) {
-        User user = new User();
-        user.setFirstName(userCreateDTO.getFirstName());
-        user.setLastName(userCreateDTO.getLastName());
-        user.setPhoneNumber(userCreateDTO.getPhoneNumber());
-        user.setUsername(userCreateDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(userCreateDTO.getPassword()));
+        User user = UserMapper.fromCreateDTO(userCreateDTO, passwordEncoder);
         return userRepository.save(user);
     }
 
