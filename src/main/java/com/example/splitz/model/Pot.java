@@ -21,6 +21,13 @@ public class Pot {
     @JoinColumn(name = "event_id")
     private Event event;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private PotType type;
+
+    @Column(name = "fixed_amount_per_user")
+    private Integer fixedAmountPerUser;
+
     private String name;
 
     private Integer budget;

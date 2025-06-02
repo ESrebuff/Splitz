@@ -18,6 +18,7 @@ public class PaymentMethodController {
     @Autowired
     private PaymentMethodService paymentMethodService;
 
+    // Add a new payment method for the current user
     @PostMapping
     public ResponseEntity<PayementMethod> addPaymentMethod(@RequestBody PaymentMethodCreateDTO dto) {
         String username = getAuthenticatedUsername();
@@ -25,6 +26,7 @@ public class PaymentMethodController {
         return ResponseEntity.ok(created);
     }
 
+    // Get all payment methods of the authenticated user
     @GetMapping
     public ResponseEntity<List<PayementMethod>> getMyPaymentMethods() {
         String username = getAuthenticatedUsername();
@@ -32,6 +34,7 @@ public class PaymentMethodController {
         return ResponseEntity.ok(methods);
     }
 
+    // Get payment methods of another user (if authorized)
     @GetMapping("/user/{targetUserId}")
     public ResponseEntity<?> getUserPaymentMethods(
             @PathVariable Integer targetUserId) {
@@ -41,6 +44,7 @@ public class PaymentMethodController {
         return ResponseEntity.ok(methods);
     }
 
+    // Delete a payment method (if owned by current user)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePaymentMethod(@PathVariable Integer id) {
         String username = getAuthenticatedUsername();

@@ -23,6 +23,7 @@ public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
 
+    // Add an expense with manual participant shares
     @PostMapping("/manual")
     public ResponseEntity<ExpenseResponseDTO> addCustomSplitExpense(@RequestBody @Valid ExpenseCreateDTO dto) {
         String username = getAuthenticatedUsername();
@@ -31,6 +32,7 @@ public class ExpenseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
+    // Add an expense using a shared pot
     @PostMapping("/with-pot")
     public ResponseEntity<ExpenseResponseDTO> createExpenseWithPot(@RequestBody @Valid ExpenseCreateDTO dto) {
         String username = getAuthenticatedUsername();
@@ -39,6 +41,7 @@ public class ExpenseController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // Get all expenses related to a given event
     @GetMapping("/by-event/{eventId}")
     public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByEvent(@PathVariable Integer eventId) {
         List<Expense> expenses = expenseService.getExpensesByEvent(eventId);

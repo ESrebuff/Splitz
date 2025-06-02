@@ -27,6 +27,7 @@ public class EventController {
     @Autowired
     private EventParticipationService eventParticipationService;
 
+    // Create a new event (only for the authenticated user)
     @PostMapping
     public ResponseEntity<EventResponseDTO> createEvent(@RequestBody @Valid EventCreateDTO dto) {
         String username = getAuthenticatedUsername();
@@ -34,6 +35,7 @@ public class EventController {
         return ResponseEntity.ok(EventMapper.toDTO(event));
     }
 
+    // Update an existing event (only if user is the creator)
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Integer eventId,
             @RequestBody @Valid EventCreateDTO dto) {
@@ -42,6 +44,7 @@ public class EventController {
         return ResponseEntity.ok(EventMapper.toDTO(updated));
     }
 
+    // Delete an event (only if user is the creator)
     @DeleteMapping("/{eventId}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Integer eventId) {
         String username = getAuthenticatedUsername();
@@ -49,12 +52,14 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
+    // Get all events (probably used for admin or public listing)
     @GetMapping
     public ResponseEntity<List<EventResponseDTO>> getAllEvents() {
         List<EventResponseDTO> events = eventManagementService.getAllEvents();
         return ResponseEntity.ok(events);
     }
 
+    // Join an event using an invite code (authenticated user)
     @PostMapping("/join")
     public ResponseEntity<EventResponseDTO> joinEvent(@RequestParam String inviteCode) {
         String username = getAuthenticatedUsername();
@@ -62,6 +67,7 @@ public class EventController {
         return ResponseEntity.ok(dto);
     }
 
+    // Leave an event (authenticated user leaves participation)
     @DeleteMapping("/leave/{eventId}")
     public ResponseEntity<Void> leaveEvent(@PathVariable Integer eventId) {
         String username = getAuthenticatedUsername();
@@ -69,6 +75,7 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
+    // Get all events the current user is participating in
     @GetMapping("/my")
     public ResponseEntity<List<EventResponseDTO>> getMyEvents() {
         String username = getAuthenticatedUsername();
@@ -76,12 +83,14 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    // Get list of users participating in a specific event
     @GetMapping("/{eventId}/users")
     public ResponseEntity<List<UserEventResponseDTO>> getUsersByEvent(@PathVariable Integer eventId) {
         List<UserEventResponseDTO> userEventDTOs = eventParticipationService.getUsersByEventId(eventId);
         return ResponseEntity.ok(userEventDTOs);
     }
 
+    // Remove a user from an event (only by the organizer)
     @DeleteMapping("/{eventId}/user")
     public ResponseEntity<Void> removeUserFromEvent(@PathVariable Integer eventId,
             @RequestParam String usernameToRemove) {

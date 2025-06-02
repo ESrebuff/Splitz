@@ -17,4 +17,7 @@ public interface UserPotRepository extends JpaRepository<UserPot, Integer> {
     List<UserPot> findByUser_Id(Integer userId);
 
     boolean existsByPotAndUser_Id(Pot pot, Integer userId);
+
+    List<UserPot> findAllByPot(Pot pot);
+
 }

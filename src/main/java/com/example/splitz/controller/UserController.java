@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/register")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -26,13 +26,15 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping
+    // Register a new user and return a JWT token
+    @PostMapping("/register")
     public ResponseEntity<String> createUser(@RequestBody @Valid UserCreateDTO userCreateDTO) {
         User createdUser = userService.createUser(userCreateDTO);
         String token = jwtUtil.generateToken(createdUser.getUsername());
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
+    // Log in with credentials and receive JWT
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginDTO) {
         return userService.authenticate(loginDTO.getUsername(), loginDTO.getPassword())
@@ -40,13 +42,16 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"));
     }
 
-    @DeleteMapping("/me")
-    public ResponseEntity<Void> requestAccountDeletion() {
+    // Get current user's info
+    @GetMapping("/me")
+    public ResponseEntity<User> getCurrentUser() {
         String username = getAuthenticatedUsername();
-        userService.markAccountForDeletion(username);
-        return ResponseEntity.noContent().build();
+        return userService.getUserByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    // Update user's profile information
     @PatchMapping("/me")
     public ResponseEntity<?> updateUserInfo(@RequestBody UserUpdateInfoDTO dto) {
         String username = getAuthenticatedUsername();
@@ -54,6 +59,15 @@ public class UserController {
         return ResponseEntity.ok("User info updated");
     }
 
+    // Delete the current user account
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> requestAccountDeletion() {
+        String username = getAuthenticatedUsername();
+        userService.markAccountForDeletion(username);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Update user's password
     @PatchMapping("/me/password")
     public ResponseEntity<?> updatePassword(@RequestBody @Valid UserUpdatePasswordDTO dto) {
         String username = getAuthenticatedUsername();

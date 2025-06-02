@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.example.splitz.dto.pot.PotCreateDTO;
 import com.example.splitz.dto.pot.PotUpdateDTO;
+import com.example.splitz.model.Event;
 import com.example.splitz.model.Pot;
+import com.example.splitz.model.PotType;
+import com.example.splitz.repository.EventRepository;
 import com.example.splitz.repository.PotRepository;
 
 @Service
@@ -16,10 +19,16 @@ public class PotManagementService {
     @Autowired
     private PotRepository potRepository;
 
-    public Pot createPot(PotCreateDTO potCreateDTO) {
+    @Autowired
+    private EventRepository eventRepository;
+
+    public Pot createPot(PotCreateDTO dto) {
         Pot pot = new Pot();
-        pot.setName(potCreateDTO.getName());
-        pot.setBudget(potCreateDTO.getBudget());
+        pot.setName(dto.getName());
+        pot.setType(dto.getType());
+        pot.setBudget(dto.getType() == PotType.TARGET ? dto.getBudget() : null);
+        pot.setFixedAmountPerUser(dto.getType() == PotType.FIXED ? dto.getFixedAmountPerUser() : null);
+        pot.setEvent(getEventById(dto.getEventId()));
         return potRepository.save(pot);
     }
 
@@ -54,6 +63,11 @@ public class PotManagementService {
         }
 
         potRepository.delete(pot);
+    }
+
+    private Event getEventById(Integer eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Événement non trouvé"));
     }
 
 }
