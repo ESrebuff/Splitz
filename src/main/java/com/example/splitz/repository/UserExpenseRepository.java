@@ -11,4 +11,6 @@ public interface UserExpenseRepository extends JpaRepository<UserExpense, Intege
     List<UserExpense> findByExpense(Expense expense);
 
     List<UserExpense> findByUser(User user);
+
+    List<UserExpense> findByUser_Id(Integer userId);
 }

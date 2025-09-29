@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Integer> {
     List<Expense> findByEvent(Event event);
+
+    List<Expense> findByPot_Id(Integer potId);
 }

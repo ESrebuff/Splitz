@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "PAYEMENT_METHODS")
-public class PayementMethod {
+@Table(name = "PAYMENT_METHODS")
+public class PaymentMethod {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,4 +43,4 @@ public class PayementMethod {
     }
 }
 
-// Liste les moyends de payement d'un utilisateur.
+// Liste les moyens de paiement d'un utilisateur.

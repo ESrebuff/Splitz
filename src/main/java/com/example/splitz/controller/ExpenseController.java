@@ -51,6 +51,44 @@ public class ExpenseController {
         return ResponseEntity.ok(response);
     }
 
+    // Get a specific expense by ID
+    @GetMapping("/{expenseId}")
+    public ResponseEntity<ExpenseResponseDTO> getExpenseById(@PathVariable Integer expenseId) {
+        Expense expense = expenseService.getExpenseById(expenseId);
+        ExpenseResponseDTO responseDto = ExpenseMapper.toDto(expense);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    // Get all expenses of the current user
+    @GetMapping("/my")
+    public ResponseEntity<List<ExpenseResponseDTO>> getMyExpenses() {
+        String username = getAuthenticatedUsername();
+        List<Expense> expenses = expenseService.getExpensesByUser(username);
+        List<ExpenseResponseDTO> response = expenses.stream()
+                .map(ExpenseMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    // Update an existing expense
+    @PutMapping("/{expenseId}")
+    public ResponseEntity<ExpenseResponseDTO> updateExpense(
+            @PathVariable Integer expenseId,
+            @RequestBody @Valid ExpenseCreateDTO dto) {
+        String username = getAuthenticatedUsername();
+        Expense updatedExpense = expenseService.updateExpense(expenseId, dto, username);
+        ExpenseResponseDTO responseDto = ExpenseMapper.toDto(updatedExpense);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    // Delete an expense
+    @DeleteMapping("/{expenseId}")
+    public ResponseEntity<Void> deleteExpense(@PathVariable Integer expenseId) {
+        String username = getAuthenticatedUsername();
+        expenseService.deleteExpense(expenseId, username);
+        return ResponseEntity.noContent().build();
+    }
+
     private String getAuthenticatedUsername() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }

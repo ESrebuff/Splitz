@@ -25,7 +25,7 @@ public class UserPot {
     @JoinColumn(name = "pot_id")
     private Pot pot;
 
-    @JoinColumn(name = "amount_paid")
+    @Column(name = "amount_paid")
     private Integer amountPaid;
 
     @Column(name = "created_at", updatable = false)

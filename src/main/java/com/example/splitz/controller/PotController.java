@@ -4,6 +4,7 @@ import com.example.splitz.dto.pot.PotCreateDTO;
 import com.example.splitz.dto.pot.PotUpdateDTO;
 import com.example.splitz.model.Pot;
 import com.example.splitz.model.User;
+import com.example.splitz.repository.UserRepository;
 import com.example.splitz.service.PotParticipationService;
 import com.example.splitz.service.PotManagementService;
 
@@ -26,6 +27,9 @@ public class PotController {
 
     @Autowired
     private PotParticipationService potParticipationService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // Create a new pot (e.g. shared fund for event)
     @PostMapping
@@ -101,6 +105,44 @@ public class PotController {
         String currentUsername = getAuthenticatedUsername();
         potService.deletePot(potId, currentUsername);
         return ResponseEntity.noContent().build();
+    }
+
+    // Get all pots of the current user
+    @GetMapping("/my")
+    public ResponseEntity<List<Pot>> getMyPots() {
+        String username = getAuthenticatedUsername();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        List<Pot> pots = potParticipationService.getPotsByUserId(user.getId());
+        return ResponseEntity.ok(pots);
+    }
+
+    // Get pot analytics - how much a user has paid in a pot
+    @GetMapping("/{potId}/user/{userId}/amount-paid")
+    public ResponseEntity<Integer> getAmountPaidByUser(@PathVariable Integer potId, @PathVariable Integer userId) {
+        int amount = potParticipationService.getAmountPaidByUserInPot(userId, potId);
+        return ResponseEntity.ok(amount);
+    }
+
+    // Get pot analytics - how much a user owes in a pot
+    @GetMapping("/{potId}/user/{userId}/amount-owed")
+    public ResponseEntity<Integer> getAmountOwedByUser(@PathVariable Integer potId, @PathVariable Integer userId) {
+        int amount = potParticipationService.getAmountOwedByUserInPot(userId, potId);
+        return ResponseEntity.ok(amount);
+    }
+
+    // Get pot analytics - total amount in pot
+    @GetMapping("/{potId}/total-amount")
+    public ResponseEntity<Integer> getTotalAmountInPot(@PathVariable Integer potId) {
+        int amount = potParticipationService.getTotalAmountInPot(potId);
+        return ResponseEntity.ok(amount);
+    }
+
+    // Get pot analytics - remaining amount in pot
+    @GetMapping("/{potId}/remaining-amount")
+    public ResponseEntity<Integer> getRemainingAmountInPot(@PathVariable Integer potId) {
+        int amount = potParticipationService.getRemainingAmountInPot(potId);
+        return ResponseEntity.ok(amount);
     }
 
     private String getAuthenticatedUsername() {

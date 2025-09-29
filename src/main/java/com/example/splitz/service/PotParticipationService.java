@@ -8,12 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.splitz.model.Event;
+import com.example.splitz.model.Expense;
 import com.example.splitz.model.Pot;
 import com.example.splitz.model.PotType;
 import com.example.splitz.model.User;
+import com.example.splitz.model.UserExpense;
 import com.example.splitz.model.UserPot;
+import com.example.splitz.repository.ExpenseRepository;
 import com.example.splitz.repository.PotRepository;
 import com.example.splitz.repository.UserEventRepository;
+import com.example.splitz.repository.UserExpenseRepository;
 import com.example.splitz.repository.UserPotRepository;
 import com.example.splitz.repository.UserRepository;
 
@@ -31,6 +35,12 @@ public class PotParticipationService {
 
     @Autowired
     private UserPotRepository userPotRepository;
+
+    @Autowired
+    private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private UserExpenseRepository userExpenseRepository;
 
     public void addUserToPotAsOrganizer(Integer potId, String usernameToAdd, String currentUsername) {
         Pot pot = getPotOrThrow(potId);
@@ -91,6 +101,60 @@ public class PotParticipationService {
                 .collect(Collectors.toList());
     }
 
+    public void contributeToPot(Integer potId, String username, Integer amount) {
+        Pot pot = getPotOrThrow(potId);
+        if (pot.getType() != PotType.TARGET) {
+            throw new IllegalStateException("Ce pot n'accepte pas de contributions variables.");
+        }
+
+        User user = getUserOrThrow(username);
+        UserPot userPot = getUserPotOrThrow(user, pot);
+
+        userPot.setAmountPaid(userPot.getAmountPaid() + amount);
+        userPotRepository.save(userPot);
+    }
+
+    // Combien un utilisateur a payé dans un pot
+    public int getAmountPaidByUserInPot(Integer userId, Integer potId) {
+        List<UserPot> userPots = userPotRepository.findByUser_IdAndPot_Id(userId, potId);
+        return userPots.stream().mapToInt(UserPot::getAmountPaid).sum();
+    }
+
+    // Combien un utilisateur doit payer dans un pot
+    public int getAmountOwedByUserInPot(Integer userId, Integer potId) {
+        List<UserExpense> userExpenses = userExpenseRepository.findByUser_Id(userId);
+        return userExpenses.stream()
+                .filter(ue -> ue.getExpense().getPotId() != null && ue.getExpense().getPotId().equals(potId))
+                .mapToInt(UserExpense::getAmountOwed)
+                .sum();
+    }
+
+    // Récupérer tous les pots d'un utilisateur
+    public List<Pot> getPotsByUserId(Integer userId) {
+        List<UserPot> userPots = userPotRepository.findByUser_Id(userId);
+        return userPots.stream().map(UserPot::getPot).collect(Collectors.toList());
+    }
+
+    // Combien d'argent il y a dans un pot (total des contributions)
+    public int getTotalAmountInPot(Integer potId) {
+        List<UserPot> userPots = userPotRepository.findByPot_Id(potId);
+        return userPots.stream().mapToInt(UserPot::getAmountPaid).sum();
+    }
+
+    // Combien d'argent il reste dans un pot (total - dépenses)
+    public int getRemainingAmountInPot(Integer potId) {
+        getPotOrThrow(potId); // Vérifier que le pot existe
+        int totalContributions = getTotalAmountInPot(potId);
+        int totalExpenses = getTotalExpensesFromPot(potId);
+        return totalContributions - totalExpenses;
+    }
+
+    // Calculer le total des dépenses payées avec ce pot
+    private int getTotalExpensesFromPot(Integer potId) {
+        List<Expense> expenses = expenseRepository.findByPot_Id(potId);
+        return expenses.stream().mapToInt(Expense::getAmount).sum();
+    }
+
     private Pot getPotOrThrow(Integer potId) {
         return potRepository.findById(potId)
                 .orElseThrow(() -> new NoSuchElementException("Pot introuvable"));
@@ -124,19 +188,6 @@ public class PotParticipationService {
         if (userPotRepository.existsByUserAndPot(user, pot)) {
             throw new IllegalStateException("L'utilisateur est déjà dans ce pot");
         }
-    }
-
-    public void contributeToPot(Integer potId, String username, Integer amount) {
-        Pot pot = getPotOrThrow(potId);
-        if (pot.getType() != PotType.TARGET) {
-            throw new IllegalStateException("Ce pot n'accepte pas de contributions variables.");
-        }
-
-        User user = getUserOrThrow(username);
-        UserPot userPot = getUserPotOrThrow(user, pot);
-
-        userPot.setAmountPaid(userPot.getAmountPaid() + amount);
-        userPotRepository.save(userPot);
     }
 
     private void saveUserPot(User user, Pot pot) {

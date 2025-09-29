@@ -45,7 +45,7 @@ public class SecurityConfig {
             throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/register", "/auth/**", "/api/**").permitAll() // Routes publiques
+                .requestMatchers("/api/register", "/api/login").permitAll() // Routes publiques
                 // .requestMatchers("/api/events/**").authenticated() // Routes privées
                 .anyRequest().authenticated() // Routes sécurisées
                 .and()

@@ -16,6 +16,7 @@ public class ExpenseMapper {
                 .paidByUserid(expense.getPaidByUserid())
                 .eventId(expense.getEvent().getId())
                 .potId(expense.getPotId())
+                .event(EventMapper.toEventSummaryDTO(expense.getEvent()))
                 .build();
 
     }

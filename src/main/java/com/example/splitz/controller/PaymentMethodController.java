@@ -1,7 +1,7 @@
 package com.example.splitz.controller;
 
 import com.example.splitz.dto.payment.PaymentMethodCreateDTO;
-import com.example.splitz.model.PayementMethod;
+import com.example.splitz.model.PaymentMethod;
 import com.example.splitz.service.PaymentMethodService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +20,17 @@ public class PaymentMethodController {
 
     // Add a new payment method for the current user
     @PostMapping
-    public ResponseEntity<PayementMethod> addPaymentMethod(@RequestBody PaymentMethodCreateDTO dto) {
+    public ResponseEntity<PaymentMethod> addPaymentMethod(@RequestBody PaymentMethodCreateDTO dto) {
         String username = getAuthenticatedUsername();
-        PayementMethod created = paymentMethodService.addPaymentMethod(username, dto);
+        PaymentMethod created = paymentMethodService.addPaymentMethod(username, dto);
         return ResponseEntity.ok(created);
     }
 
     // Get all payment methods of the authenticated user
     @GetMapping
-    public ResponseEntity<List<PayementMethod>> getMyPaymentMethods() {
+    public ResponseEntity<List<PaymentMethod>> getMyPaymentMethods() {
         String username = getAuthenticatedUsername();
-        List<PayementMethod> methods = paymentMethodService.getUserPaymentMethods(username);
+        List<PaymentMethod> methods = paymentMethodService.getUserPaymentMethods(username);
         return ResponseEntity.ok(methods);
     }
 
@@ -40,7 +40,7 @@ public class PaymentMethodController {
             @PathVariable Integer targetUserId) {
 
         String username = getAuthenticatedUsername();
-        List<PayementMethod> methods = paymentMethodService.getAuthorizedPaymentMethods(username, targetUserId);
+        List<PaymentMethod> methods = paymentMethodService.getAuthorizedPaymentMethods(username, targetUserId);
         return ResponseEntity.ok(methods);
     }
 
@@ -57,3 +57,6 @@ public class PaymentMethodController {
     }
 
 }
+
+// TODO idées intéressantes : - partager des photos style rib -> pouvoir ajouter
+// des dépences sans connexion internet

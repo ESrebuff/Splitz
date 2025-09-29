@@ -8,10 +8,14 @@ import org.springframework.stereotype.Service;
 import com.example.splitz.dto.pot.PotCreateDTO;
 import com.example.splitz.dto.pot.PotUpdateDTO;
 import com.example.splitz.model.Event;
+import com.example.splitz.model.Expense;
 import com.example.splitz.model.Pot;
 import com.example.splitz.model.PotType;
+import com.example.splitz.model.UserPot;
 import com.example.splitz.repository.EventRepository;
+import com.example.splitz.repository.ExpenseRepository;
 import com.example.splitz.repository.PotRepository;
+import com.example.splitz.repository.UserPotRepository;
 
 @Service
 public class PotManagementService {
@@ -21,6 +25,12 @@ public class PotManagementService {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired
+    private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private UserPotRepository userPotRepository;
 
     public Pot createPot(PotCreateDTO dto) {
         Pot pot = new Pot();
@@ -70,10 +80,18 @@ public class PotManagementService {
                 .orElseThrow(() -> new RuntimeException("Événement non trouvé"));
     }
 
-}
+    // Combien d'argent il reste dans un pot (budget - dépenses)
+    public int getRemainingAmountInPot(Integer potId) {
+        Pot pot = potRepository.findById(potId).orElseThrow(() -> new RuntimeException("Pot not found"));
+        List<Expense> expenses = expenseRepository.findByPot_Id(potId);
+        int totalExpenses = expenses.stream().mapToInt(Expense::getAmount).sum();
+        return pot.getBudget() - totalExpenses;
+    }
 
-// TODO : connaitre combien un utilisateur a payé dans un pot
-// TODO : connaitre combien un utilisateur doit payer dans un pot
-// TODO : connaitre combien d'argent il reste dans un pot
-// TODO : connaitre combien d'argent il y a dans un pot
-// TODO : récupérer tous les pots d'un utilisateur
+    // Combien d'argent il y a dans un pot (somme payée par tous les utilisateurs)
+    public int getAmountCollectedInPot(Integer potId) {
+        List<UserPot> userPots = userPotRepository.findByPot_Id(potId);
+        return userPots.stream().mapToInt(UserPot::getAmountPaid).sum();
+    }
+
+}

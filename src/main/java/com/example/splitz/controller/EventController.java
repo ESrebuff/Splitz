@@ -3,10 +3,15 @@ package com.example.splitz.controller;
 import com.example.splitz.dto.event.EventCreateDTO;
 import com.example.splitz.dto.event.EventResponseDTO;
 import com.example.splitz.dto.event.UserEventResponseDTO;
+import com.example.splitz.dto.expense.ExpenseResponseDTO;
 import com.example.splitz.mapper.EventMapper;
+import com.example.splitz.mapper.ExpenseMapper;
 import com.example.splitz.model.Event;
+import com.example.splitz.model.Expense;
+import com.example.splitz.model.Pot;
 import com.example.splitz.service.EventManagementService;
 import com.example.splitz.service.EventParticipationService;
+import com.example.splitz.service.SettlementService;
 
 import jakarta.validation.Valid;
 
@@ -26,6 +31,9 @@ public class EventController {
 
     @Autowired
     private EventParticipationService eventParticipationService;
+
+    @Autowired
+    private SettlementService settlementService;
 
     // Create a new event (only for the authenticated user)
     @PostMapping
@@ -52,7 +60,7 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
-    // Get all events (probably used for admin or public listing)
+    // Get all events
     @GetMapping
     public ResponseEntity<List<EventResponseDTO>> getAllEvents() {
         List<EventResponseDTO> events = eventManagementService.getAllEvents();
@@ -97,6 +105,39 @@ public class EventController {
         String username = getAuthenticatedUsername();
         eventParticipationService.removeUserFromEvent(eventId, usernameToRemove, username);
         return ResponseEntity.noContent().build();
+    }
+
+    // Get a specific event by ID
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventResponseDTO> getEventById(@PathVariable Integer eventId) {
+        Event event = eventManagementService.getEventById(eventId);
+        return ResponseEntity.ok(EventMapper.toDTO(event));
+    }
+
+    // Get all expenses of an event
+    @GetMapping("/{eventId}/expenses")
+    public ResponseEntity<List<ExpenseResponseDTO>> getEventExpenses(@PathVariable Integer eventId) {
+        List<Expense> expenses = eventManagementService.getEventExpenses(eventId);
+        List<ExpenseResponseDTO> response = expenses.stream()
+                .map(ExpenseMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    // Get all pots of an event
+    @GetMapping("/{eventId}/pots")
+    public ResponseEntity<List<Pot>> getEventPots(@PathVariable Integer eventId) {
+        List<Pot> pots = eventManagementService.getEventPots(eventId);
+        return ResponseEntity.ok(pots);
+    }
+
+    // Get optimal settlement for an event (who owes whom)
+    @GetMapping("/{eventId}/settlement")
+    public ResponseEntity<List<SettlementService.SettlementTransaction>> getOptimalSettlement(
+            @PathVariable Integer eventId) {
+        List<SettlementService.SettlementTransaction> settlement = settlementService
+                .calculateOptimalSettlement(eventId);
+        return ResponseEntity.ok(settlement);
     }
 
     private String getAuthenticatedUsername() {

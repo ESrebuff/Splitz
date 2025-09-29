@@ -5,9 +5,13 @@ import com.example.splitz.dto.event.EventResponseDTO;
 import com.example.splitz.helper.EventAssociationHelper;
 import com.example.splitz.mapper.EventMapper;
 import com.example.splitz.model.Event;
+import com.example.splitz.model.Expense;
+import com.example.splitz.model.Pot;
 import com.example.splitz.model.RoleEvent;
 import com.example.splitz.model.User;
 import com.example.splitz.repository.EventRepository;
+import com.example.splitz.repository.ExpenseRepository;
+import com.example.splitz.repository.PotRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,6 +34,12 @@ public class EventManagementService {
 
     @Autowired
     private EventAssociationHelper eventAssociationHelper;
+
+    @Autowired
+    private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private PotRepository potRepository;
 
     public Event createEvent(EventCreateDTO dto, String username) {
         User user = userService.getUserByUsername(username)
@@ -80,6 +90,21 @@ public class EventManagementService {
         }
 
         eventRepository.delete(event);
+    }
+
+    public Event getEventById(Integer eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Événement non trouvé"));
+    }
+
+    public List<Expense> getEventExpenses(Integer eventId) {
+        Event event = getEventById(eventId);
+        return expenseRepository.findByEvent(event);
+    }
+
+    public List<Pot> getEventPots(Integer eventId) {
+        getEventById(eventId); // Vérifier que l'événement existe
+        return potRepository.findByEventId(eventId);
     }
 
     private String generateInviteCode() {
