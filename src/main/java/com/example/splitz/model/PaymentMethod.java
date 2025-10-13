@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,8 +28,9 @@ public class PaymentMethod {
 
     private String method;
 
-    @Column(name = "account_info", columnDefinition = "jsonb")
-    private String accountInfo;
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode accountInfo;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

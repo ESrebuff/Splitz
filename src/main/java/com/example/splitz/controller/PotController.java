@@ -1,7 +1,9 @@
 package com.example.splitz.controller;
 
 import com.example.splitz.dto.pot.PotCreateDTO;
+import com.example.splitz.dto.pot.PotResponseDTO;
 import com.example.splitz.dto.pot.PotUpdateDTO;
+import com.example.splitz.mapper.PotMapper;
 import com.example.splitz.model.Pot;
 import com.example.splitz.model.User;
 import com.example.splitz.repository.UserRepository;
@@ -33,9 +35,9 @@ public class PotController {
 
     // Create a new pot (e.g. shared fund for event)
     @PostMapping
-    public ResponseEntity<Pot> createPot(@RequestBody @Valid PotCreateDTO potCreateDTO) {
+    public ResponseEntity<PotResponseDTO> createPot(@RequestBody @Valid PotCreateDTO potCreateDTO) {
         Pot createdPot = potService.createPot(potCreateDTO);
-        return new ResponseEntity<>(createdPot, HttpStatus.CREATED);
+        return ResponseEntity.ok(PotMapper.toDTO(createdPot));
     }
 
     // Organizer adds a user to a pot manually
@@ -70,8 +72,8 @@ public class PotController {
 
     // Get all pots associated with an event
     @GetMapping("/by-event/{eventId}")
-    public ResponseEntity<List<Pot>> getPotsByEvent(@PathVariable Integer eventId) {
-        List<Pot> pots = potService.getPotsByEventId(eventId);
+    public ResponseEntity<List<PotResponseDTO>> getPotsByEvent(@PathVariable Integer eventId) {
+        List<PotResponseDTO> pots = potService.getPotsByEventId(eventId);
         return ResponseEntity.ok(pots);
     }
 
@@ -109,11 +111,11 @@ public class PotController {
 
     // Get all pots of the current user
     @GetMapping("/my")
-    public ResponseEntity<List<Pot>> getMyPots() {
+    public ResponseEntity<List<PotResponseDTO>> getMyPots() {
         String username = getAuthenticatedUsername();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        List<Pot> pots = potParticipationService.getPotsByUserId(user.getId());
+        List<PotResponseDTO> pots = potParticipationService.getPotsByUserId(user.getId());
         return ResponseEntity.ok(pots);
     }
 

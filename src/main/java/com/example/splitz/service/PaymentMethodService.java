@@ -1,6 +1,8 @@
 package com.example.splitz.service;
 
 import com.example.splitz.dto.payment.PaymentMethodCreateDTO;
+import com.example.splitz.dto.payment.PaymentMethodResponseDTO;
+import com.example.splitz.mapper.PayementMethodMapper;
 import com.example.splitz.model.PaymentMethod;
 import com.example.splitz.model.User;
 import com.example.splitz.repository.PaymentMethodRepository;
@@ -35,8 +37,12 @@ public class PaymentMethodService {
         return paymentMethodRepository.save(paymentMethod);
     }
 
-    public List<PaymentMethod> getUserPaymentMethods(String username) {
-        return paymentMethodRepository.findByUser_Username(username);
+    public List<PaymentMethodResponseDTO> getUserPaymentMethods(String username) {
+        return paymentMethodRepository.findByUser_Username(username)
+                .stream()
+                .map(PayementMethodMapper::toDTO)
+                .toList();
+
     }
 
     public void deletePaymentMethod(String username, Integer id) {

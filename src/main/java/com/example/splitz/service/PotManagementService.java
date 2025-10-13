@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.splitz.dto.pot.PotCreateDTO;
+import com.example.splitz.dto.pot.PotResponseDTO;
 import com.example.splitz.dto.pot.PotUpdateDTO;
+import com.example.splitz.mapper.PotMapper;
 import com.example.splitz.model.Event;
 import com.example.splitz.model.Expense;
 import com.example.splitz.model.Pot;
@@ -42,8 +44,10 @@ public class PotManagementService {
         return potRepository.save(pot);
     }
 
-    public List<Pot> getPotsByEventId(Integer eventId) {
-        return potRepository.findByEventId(eventId);
+    public List<PotResponseDTO> getPotsByEventId(Integer eventId) {
+        return potRepository.findByEventId(eventId).stream()
+                .map(PotMapper::toDTO)
+                .toList();
     }
 
     public Pot updatePot(Integer potId, PotUpdateDTO potUpdateDTO, String currentUsername) {
@@ -83,14 +87,14 @@ public class PotManagementService {
     // Combien d'argent il reste dans un pot (budget - dépenses)
     public int getRemainingAmountInPot(Integer potId) {
         Pot pot = potRepository.findById(potId).orElseThrow(() -> new RuntimeException("Pot not found"));
-        List<Expense> expenses = expenseRepository.findByPot_Id(potId);
+        List<Expense> expenses = expenseRepository.findByPotId(potId);
         int totalExpenses = expenses.stream().mapToInt(Expense::getAmount).sum();
         return pot.getBudget() - totalExpenses;
     }
 
     // Combien d'argent il y a dans un pot (somme payée par tous les utilisateurs)
     public int getAmountCollectedInPot(Integer potId) {
-        List<UserPot> userPots = userPotRepository.findByPot_Id(potId);
+        List<UserPot> userPots = userPotRepository.findByPotId(potId);
         return userPots.stream().mapToInt(UserPot::getAmountPaid).sum();
     }
 

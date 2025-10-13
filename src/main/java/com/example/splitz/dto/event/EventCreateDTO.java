@@ -19,6 +19,5 @@ public class EventCreateDTO {
     private String eventName;
 
     @NotNull(message = "La date de l'événement est obligatoire")
-    @Future(message = "La date de l'événement doit être dans le futur")
     private LocalDateTime eventDate;
 }

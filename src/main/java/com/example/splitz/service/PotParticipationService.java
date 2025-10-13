@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.splitz.dto.pot.PotResponseDTO;
+import com.example.splitz.mapper.PotMapper;
 import com.example.splitz.model.Event;
 import com.example.splitz.model.Expense;
 import com.example.splitz.model.Pot;
@@ -130,14 +132,18 @@ public class PotParticipationService {
     }
 
     // Récupérer tous les pots d'un utilisateur
-    public List<Pot> getPotsByUserId(Integer userId) {
+    public List<PotResponseDTO> getPotsByUserId(Integer userId) {
         List<UserPot> userPots = userPotRepository.findByUser_Id(userId);
-        return userPots.stream().map(UserPot::getPot).collect(Collectors.toList());
+
+        return userPots.stream()
+                .map(UserPot::getPot) // récupère le Pot
+                .map(PotMapper::toDTO) // transforme en DTO
+                .collect(Collectors.toList());
     }
 
     // Combien d'argent il y a dans un pot (total des contributions)
     public int getTotalAmountInPot(Integer potId) {
-        List<UserPot> userPots = userPotRepository.findByPot_Id(potId);
+        List<UserPot> userPots = userPotRepository.findByPotId(potId);
         return userPots.stream().mapToInt(UserPot::getAmountPaid).sum();
     }
 
@@ -151,7 +157,7 @@ public class PotParticipationService {
 
     // Calculer le total des dépenses payées avec ce pot
     private int getTotalExpensesFromPot(Integer potId) {
-        List<Expense> expenses = expenseRepository.findByPot_Id(potId);
+        List<Expense> expenses = expenseRepository.findByPotId(potId);
         return expenses.stream().mapToInt(Expense::getAmount).sum();
     }
 

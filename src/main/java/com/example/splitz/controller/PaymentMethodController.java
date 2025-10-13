@@ -1,6 +1,8 @@
 package com.example.splitz.controller;
 
 import com.example.splitz.dto.payment.PaymentMethodCreateDTO;
+import com.example.splitz.dto.payment.PaymentMethodResponseDTO;
+import com.example.splitz.mapper.PayementMethodMapper;
 import com.example.splitz.model.PaymentMethod;
 import com.example.splitz.service.PaymentMethodService;
 
@@ -20,17 +22,17 @@ public class PaymentMethodController {
 
     // Add a new payment method for the current user
     @PostMapping
-    public ResponseEntity<PaymentMethod> addPaymentMethod(@RequestBody PaymentMethodCreateDTO dto) {
+    public ResponseEntity<PaymentMethodResponseDTO> addPaymentMethod(@RequestBody PaymentMethodCreateDTO dto) {
         String username = getAuthenticatedUsername();
         PaymentMethod created = paymentMethodService.addPaymentMethod(username, dto);
-        return ResponseEntity.ok(created);
+        return ResponseEntity.ok(PayementMethodMapper.toDTO(created));
     }
 
     // Get all payment methods of the authenticated user
     @GetMapping
-    public ResponseEntity<List<PaymentMethod>> getMyPaymentMethods() {
+    public ResponseEntity<List<PaymentMethodResponseDTO>> getMyPaymentMethods() {
         String username = getAuthenticatedUsername();
-        List<PaymentMethod> methods = paymentMethodService.getUserPaymentMethods(username);
+        List<PaymentMethodResponseDTO> methods = paymentMethodService.getUserPaymentMethods(username);
         return ResponseEntity.ok(methods);
     }
 

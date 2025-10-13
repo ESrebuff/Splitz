@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentMethodCreateDTO {
+public class PaymentMethodResponseDTO {
+    private Integer id;
     private String method;
     private JsonNode accountInfo;
 }
